@@ -11,6 +11,8 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] LayerMask wallLayer;
     Vector2 movementDirection;
     public bool isGrappling = false;
+    bool wallToTheRight;
+    bool wallToTheLeft;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -32,10 +34,6 @@ public class PlayerMovement : MonoBehaviour
         {
             Jump();
         }
-        else if(Input.GetKeyDown(KeyCode.Space) && WallContactCheck())
-        {
-            Jump();
-        }
     }
 
     private void Move()
@@ -45,7 +43,23 @@ public class PlayerMovement : MonoBehaviour
 
     private void Jump()
     {
-        rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+        if (GroundCheck())
+        {
+            rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+        }
+        else if (WallContactCheck() && !GroundCheck())
+        {
+            if (wallToTheRight)
+            {
+                rb.AddForce(new Vector2(-5,5) * jumpForce, ForceMode2D.Impulse);
+                print("Jump from right to left");
+            }
+            else if (wallToTheLeft)
+            {
+                rb.AddForce(new Vector2(5, 5) * jumpForce, ForceMode2D.Impulse);
+                print("Jump from left to right");
+            }
+        }
     }
 
     bool GroundCheck()
@@ -62,10 +76,14 @@ public class PlayerMovement : MonoBehaviour
     {
         if (Physics2D.Raycast(transform.position, Vector2.left, wallDistance, wallLayer))
         {
+            wallToTheLeft = true;
+            wallToTheRight = false;
             return true;
         }
-        else if(Physics2D.Raycast(transform.position, Vector2.right, wallDistance, wallLayer))
+        else if (Physics2D.Raycast(transform.position, Vector2.right, wallDistance, wallLayer))
         {
+            wallToTheLeft = false;
+            wallToTheRight = true;
             return true;
         }
 
