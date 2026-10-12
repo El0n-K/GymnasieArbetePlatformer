@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
@@ -9,6 +10,8 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] float wallDistance;
     [SerializeField] LayerMask groundLayer;
     [SerializeField] LayerMask wallLayer;
+    bool isWallJumping;
+
     Vector2 movementDirection;
     public bool isGrappling = false;
     bool wallToTheRight;
@@ -24,13 +27,13 @@ public class PlayerMovement : MonoBehaviour
     {
         float xAxis = Input.GetAxisRaw("Horizontal");
         movementDirection = new Vector2(xAxis * movementSpeed, rb.linearVelocityY);
-        if (!isGrappling)
+        if (!isGrappling && !isWallJumping)
         {
             Move();
         }
        
 
-        if(Input.GetKeyDown(KeyCode.Space) && GroundCheck())
+        if(Input.GetKeyDown(KeyCode.Space))
         {
             Jump();
         }
@@ -47,16 +50,18 @@ public class PlayerMovement : MonoBehaviour
         {
             rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
         }
-        else if (WallContactCheck() && !GroundCheck())
+        else if (WallContactCheck())
         {
+            StartCoroutine(WallJumping());
+            rb.linearVelocity = Vector2.zero;
             if (wallToTheRight)
             {
-                rb.AddForce(new Vector2(-5,5) * jumpForce, ForceMode2D.Impulse);
+                rb.AddForce(new Vector2(-1,1) * jumpForce, ForceMode2D.Impulse);
                 print("Jump from right to left");
             }
             else if (wallToTheLeft)
             {
-                rb.AddForce(new Vector2(5, 5) * jumpForce, ForceMode2D.Impulse);
+                rb.AddForce(new Vector2(1, 1) * jumpForce, ForceMode2D.Impulse);
                 print("Jump from left to right");
             }
         }
@@ -74,8 +79,10 @@ public class PlayerMovement : MonoBehaviour
 
     bool WallContactCheck()
     {
+        print("wall");
         if (Physics2D.Raycast(transform.position, Vector2.left, wallDistance, wallLayer))
         {
+            print("leftwall lul");
             wallToTheLeft = true;
             wallToTheRight = false;
             return true;
@@ -88,6 +95,13 @@ public class PlayerMovement : MonoBehaviour
         }
 
             return false;
+    }
+
+    IEnumerator WallJumping() 
+    {
+        isWallJumping = true;
+        yield return new WaitForSeconds(0.1f);
+        isWallJumping = false;
     }
 }
 
