@@ -11,6 +11,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] LayerMask groundLayer;
     [SerializeField] LayerMask wallLayer;
     bool isWallJumping;
+    bool canDoubleJump;
 
     Vector2 movementDirection;
     public bool isGrappling = false;
@@ -26,7 +27,17 @@ public class PlayerMovement : MonoBehaviour
     void Update()
     {
         float xAxis = Input.GetAxisRaw("Horizontal");
-        movementDirection = new Vector2(xAxis * movementSpeed, rb.linearVelocityY);
+
+        if (GroundCheck() || (!GroundCheck() && xAxis != 0))
+        {
+            movementDirection = new Vector2(xAxis * movementSpeed, rb.linearVelocityY);
+        }
+        else
+        {
+            movementDirection = rb.linearVelocity;
+        }
+
+
         if (!isGrappling && !isWallJumping)
         {
             Move();
@@ -46,8 +57,15 @@ public class PlayerMovement : MonoBehaviour
 
     private void Jump()
     {
+
         if (GroundCheck())
         {
+            rb.linearVelocityY = 0;
+            rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+        }
+        else if (canDoubleJump)
+        {
+            rb.linearVelocityY = 0;
             rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
         }
         else if (WallContactCheck())
@@ -56,11 +74,13 @@ public class PlayerMovement : MonoBehaviour
             rb.linearVelocity = Vector2.zero;
             if (wallToTheRight)
             {
-                rb.AddForce(new Vector2(-1,1) * jumpForce, ForceMode2D.Impulse);
+                rb.linearVelocityY = 0;
+                rb.AddForce(new Vector2(-1, 1) * jumpForce, ForceMode2D.Impulse);
                 print("Jump from right to left");
             }
             else if (wallToTheLeft)
             {
+                rb.linearVelocityY = 0;
                 rb.AddForce(new Vector2(1, 1) * jumpForce, ForceMode2D.Impulse);
                 print("Jump from left to right");
             }
@@ -102,6 +122,22 @@ public class PlayerMovement : MonoBehaviour
         isWallJumping = true;
         yield return new WaitForSeconds(0.1f);
         isWallJumping = false;
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag("JumpOrb"))
+        {
+            canDoubleJump = true;
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        if (collision.CompareTag("JumpOrb"))
+        {
+            canDoubleJump = false;
+        }
     }
 }
 

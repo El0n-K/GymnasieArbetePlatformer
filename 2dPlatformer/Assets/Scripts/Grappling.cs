@@ -8,8 +8,11 @@ public class Grappling : MonoBehaviour
     [SerializeField] LayerMask grapplable;
     [SerializeField] PlayerMovement player;
     [SerializeField] LineRenderer lineRenderer;
+    [SerializeField] Rigidbody2D rb;
     Vector3 grapplePoint;
     bool isGrappling;
+    Vector2 grappleVelocity;
+
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -43,21 +46,25 @@ public class Grappling : MonoBehaviour
         RaycastHit2D hit = Physics2D.Raycast(transform.position, MouseDirection, grappleRange, grapplable);
         if (hit)
         {
-            isGrappling = true;
-            grapplePoint = hit.point;
-            joint.enabled = true;
-            joint.connectedAnchor = hit.point;
-            joint.distance = Vector2.Distance(hit.point, transform.position) * desiredDistance;
-            player.isGrappling = true;
+
+                isGrappling = true;
+                grapplePoint = hit.point;
+                joint.enabled = true;
+                joint.connectedAnchor = hit.point;
+                joint.distance = Vector2.Distance(hit.point, transform.position) * desiredDistance;
+                player.isGrappling = true;
+            
         }
     }
 
     void StopGrapple()
     {
+        grappleVelocity = new Vector2(rb.linearVelocity.x, rb.linearVelocityY);
         isGrappling = false;
         joint.enabled = false;
         player.isGrappling = false;
         lineRenderer.positionCount = 0;
+        rb.linearVelocity = grappleVelocity;
     }
 
     void ShowGrapple()
