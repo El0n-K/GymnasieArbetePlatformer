@@ -6,6 +6,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] Rigidbody2D rb;
     [SerializeField] float movementSpeed;
     [SerializeField] float jumpForce;
+    [SerializeField] float boostedJumpForce;
     [SerializeField] float groundDistance;
     [SerializeField] float wallDistance;
     [SerializeField] LayerMask groundLayer;
@@ -66,7 +67,7 @@ public class PlayerMovement : MonoBehaviour
         else if (canDoubleJump)
         {
             rb.linearVelocityY = 0;
-            rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+            rb.AddForce(Vector2.up * boostedJumpForce, ForceMode2D.Impulse);
         }
         else if (WallContactCheck())
         {
@@ -75,13 +76,13 @@ public class PlayerMovement : MonoBehaviour
             if (wallToTheRight)
             {
                 rb.linearVelocityY = 0;
-                rb.AddForce(new Vector2(-1, 1) * jumpForce, ForceMode2D.Impulse);
+                rb.AddForce(new Vector2(-1, 1) * boostedJumpForce, ForceMode2D.Impulse);
                 print("Jump from right to left");
             }
             else if (wallToTheLeft)
             {
                 rb.linearVelocityY = 0;
-                rb.AddForce(new Vector2(1, 1) * jumpForce, ForceMode2D.Impulse);
+                rb.AddForce(new Vector2(1, 1) * boostedJumpForce, ForceMode2D.Impulse);
                 print("Jump from left to right");
             }
         }

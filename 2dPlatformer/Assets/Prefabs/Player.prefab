@@ -176,6 +176,7 @@ MonoBehaviour:
   rb: {fileID: 4429771354526734377}
   movementSpeed: 5
   jumpForce: 5
+  wallJumpForce: 7
   groundDistance: 1.1
   wallDistance: 2
   groundLayer:
@@ -205,6 +206,7 @@ MonoBehaviour:
     m_Bits: 72
   player: {fileID: 2973991541861620631}
   lineRenderer: {fileID: 6260611986845672174}
+  rb: {fileID: 0}
 --- !u!231 &663170328985362036
 SpringJoint2D:
   m_ObjectHideFlags: 0
